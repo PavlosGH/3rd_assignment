@@ -1,0 +1,110 @@
+package cubyz.gui.game;
+
+import cubyz.multiplayer.server.Server;
+import cubyz.utils.Logger;
+import cubyz.client.Cubyz;
+import cubyz.client.GameLauncher;
+import cubyz.gui.MenuGUI;
+import cubyz.gui.Transition;
+import cubyz.gui.components.Button;
+import cubyz.gui.components.Component;
+import cubyz.gui.input.Keybindings;
+import cubyz.gui.input.Keyboard;
+import cubyz.gui.input.Mouse;
+import cubyz.gui.menu.settings.SettingsGUI;
+
+import static cubyz.client.ClientSettings.GUI_SCALE;
+
+/**
+ * GUI shown when pressing escape while in a world.
+ */
+
+public class PauseGUI extends MenuGUI {
+
+	private Button exit;
+	private Button resume;
+	private Button reload;
+	private Button settings;
+	private Button invite;
+	
+	@Override
+	public void init() {
+		Mouse.setGrabbed(false);
+		if (Server.world != null) {
+			Server.world.forceSave();
+		}
+		exit = new Button("gui.cubyz.pause.exit");
+		resume = new Button("gui.cubyz.pause.resume");
+		reload = new Button("gui.cubyz.debug.reload");
+		settings = new Button("gui.cubyz.mainmenu.settings");
+		invite = new Button("gui.cubyz.pause.play_with_friends");
+
+		settings.setOnAction(() -> {
+			Cubyz.gameUI.setMenu(new SettingsGUI());
+		});
+
+		invite.setOnAction(() -> {
+			Cubyz.gameUI.setMenu(new MultiplayerInviteGUI());
+		});
+		
+		resume.setOnAction(() -> {
+			Mouse.setGrabbed(true);
+			Cubyz.gameUI.setMenu(null);
+		});
+		
+		exit.setOnAction(() -> {
+			GameLauncher.instance.quitWorld();
+		});
+		
+		reload.setOnAction(() -> {
+			Cubyz.renderDeque.add(() -> {
+				try {
+					Logger.info("Reloading shaders..");
+					GameLauncher.renderer.loadShaders();
+					Logger.info("Reloaded!");
+				} catch (Exception e) {
+					Logger.error(e);
+				}
+			});
+		});
+
+		updateGUIScale();
+	}
+
+	@Override
+	public void updateGUIScale() {
+		exit.setBounds(-50 * GUI_SCALE, 100 * GUI_SCALE, 100 * GUI_SCALE, 25 * GUI_SCALE, Component.ALIGN_BOTTOM);
+		exit.setFontSize(16 * GUI_SCALE);
+		resume.setBounds(-50 * GUI_SCALE, 50 * GUI_SCALE, 100 * GUI_SCALE, 25 * GUI_SCALE, Component.ALIGN_TOP);
+		resume.setFontSize(16 * GUI_SCALE);
+		reload.setBounds(-50 * GUI_SCALE, 150 * GUI_SCALE, 100 * GUI_SCALE, 25 * GUI_SCALE, Component.ALIGN_BOTTOM);
+		reload.setFontSize(16 * GUI_SCALE);
+		settings.setBounds(-50 * GUI_SCALE, 100 * GUI_SCALE, 100 * GUI_SCALE, 25 * GUI_SCALE, Component.ALIGN_TOP);
+		settings.setFontSize(16 * GUI_SCALE);
+		invite.setBounds(-50 * GUI_SCALE, 150 * GUI_SCALE, 100 * GUI_SCALE, 25 * GUI_SCALE, Component.ALIGN_TOP);
+		invite.setFontSize(16 * GUI_SCALE);
+	}
+
+	@Override
+	public void render() {
+		if (Keybindings.isPressed("menu")) {
+			Keyboard.setKeyPressed(Keybindings.getKeyCode("menu"), false);
+			Mouse.setGrabbed(true);
+			Cubyz.gameUI.setMenu(null, new Transition.None());
+		}
+		if (resume == null) init(); // Prevents a bug that sometimes occurs.
+		exit.render();
+		resume.render();
+		settings.render();
+		invite.render();
+		if (GameLauncher.input.clientShowDebug) {
+			reload.render();
+		}
+	}
+
+	@Override
+	public boolean doesPauseGame() {
+		return true;
+	}
+
+}

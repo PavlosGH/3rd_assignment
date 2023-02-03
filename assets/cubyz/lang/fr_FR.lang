@@ -1,0 +1,65 @@
+gui.cubyz.mainmenu.singleplayer=Solo
+gui.cubyz.mainmenu.multiplayer=Multijoueur
+gui.cubyz.mainmenu.exit=Quitter
+gui.cubyz.mainmenu.settings=Options
+gui.cubyz.settings.done=Confirmer
+gui.cubyz.general.on=Activé
+gui.cubyz.general.off=Désactivé
+gui.cubyz.general.back=Retour
+gui.cubyz.general.cancel=Annuler
+gui.cubyz.settings.language=Langue: {0}
+# The "e" at the end is intentional and is about names's genders
+gui.cubyz.settings.discord=Intégration Discord: {0}e
+gui.cubyz.settings.controls=Contrôles..
+gui.cubyz.settings.graphics=Options vidéo..
+gui.cubyz.settings.fog.med=Brouillard: Moyen
+gui.cubyz.settings.fog.far=Brouillard: Loin
+gui.cubyz.settings.fog.near=Brouillard: Proche
+gui.cubyz.settings.fog.off=Brouillard: Désactivé
+gui.cubyz.settings.bloom=Flou lumineux
+gui.cubyz.settings.easylighting=Système de lumière fluide
+gui.cubyz.settings.vsync=Synchronization verticale
+gui.cubyz.pause.exit=Quitter vers le menu
+gui.cubyz.pause.resume=Continuer
+gui.cubyz.debug.reload=Recharger
+gui.cubyz.saves.play=Jouer à {0}
+gui.cubyz.saves.delete=Supprimer
+gui.cubyz.saves.create=Créer une nouvelle partie!
+lang.name=Français
+
+# Blocks
+block.cubyz.cactus.name=Cactus
+block.cubyz.soil.name=Terre
+block.cubyz.gravel.name=Gravier
+block.cubyz.ice.name=Glace
+block.cubyz.sand.name=Sable
+block.cubyz.snow.name=Neige
+block.cubyz.mossy_cobblestone.name=Pierre moussue
+block.cubyz.cobblestone.name=Pierre
+block.cubyz.oak_log.name=Bois de chêne
+block.cubyz.oak_leaves.name=Feuilles de chêne
+block.cubyz.oak_top.name=Haut bois de chêne
+block.cubyz.oak_planks.name=Planches de chêne
+block.cubyz.torch.name=Torche
+block.cubyz.workbench.name=Atelier
+block.cubyz.iron_ore.name=Minerai de fer
+
+# Items
+item.cubyz.stick.name=Bâton
+item.cubyz.diamond.name=Diamant
+item.cubyz.coal.name=Charbon
+item.cubyz.raw_meat.name=Viande crue
+item.cubyz.apple.name=Pomme
+
+# Tools
+cubyz.grammar.tool_material={1} {0}
+cubyz.tools.materials.wood=en bois
+cubyz.tools.materials.stone=en pierre
+cubyz.tools.names.axe=Hâche
+cubyz.tools.names.pickaxe=Pioche
+cubyz.tools.names.shovel=Pelle
+cubyz.tools.names.sword=Épée
+
+# Misc
+generator.cubyz.lifeland.name=Terre de vie
+generator.cubyz.flatland.name=Terre plate

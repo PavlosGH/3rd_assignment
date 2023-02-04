@@ -24,7 +24,7 @@ public class EntityPositionProtocol extends Protocol {
 		} else if(data[offset] == ITEM) {
 			offset += 3;
 			length -= 3;
-			((InterpolatedItemEntityManager)Cubyz.world.itemEntityManager).readPosition(data, offset, length, time);
+			((InterpolatedItemEntityManager) Cubyz.world.itemEntityManager).interpolation.readPosition(((InterpolatedItemEntityManager)Cubyz.world.itemEntityManager), data, offset, length, time);
 		}
 	}
 

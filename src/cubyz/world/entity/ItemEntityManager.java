@@ -32,7 +32,7 @@ public class ItemEntityManager {
 
 	private static final float MAX_AIR_SPEED_GRAVITY = 10;
 
-	protected static final int MAX_CAPACITY = 65536;
+	public static final int MAX_CAPACITY = 65536;
 
 	public final double[] posxyz = new double[3*MAX_CAPACITY];
 	public final double[] velxyz = new double[3*MAX_CAPACITY];

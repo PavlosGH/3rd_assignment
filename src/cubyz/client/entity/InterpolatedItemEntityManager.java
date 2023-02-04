@@ -3,43 +3,17 @@ package cubyz.client.entity;
 import cubyz.Constants;
 import cubyz.utils.interpolation.GenericInterpolation;
 import cubyz.utils.interpolation.TimeDifference;
-import cubyz.utils.math.Bits;
 import cubyz.world.World;
 import cubyz.world.entity.ItemEntityManager;
 import cubyz.world.items.ItemStack;
 
 public class InterpolatedItemEntityManager extends ItemEntityManager {
-	private final GenericInterpolation interpolation = new GenericInterpolation(super.posxyz, super.velxyz);
+	public final GenericInterpolation interpolation = new GenericInterpolation(super.posxyz, super.velxyz);
 	private short lastTime = (short)System.currentTimeMillis();
-	private final TimeDifference timeDifference = new TimeDifference();
+	public final TimeDifference timeDifference = new TimeDifference();
 
 	public InterpolatedItemEntityManager(World world) {
 		super(world);
-	}
-
-	public void readPosition(byte[] data, int offset, int length, short time) {
-		assert length%(6*8 + 2) == 0 : "length must be a multiple of 6*8 + 2";
-		timeDifference.addDataPoint(time);
-		double[] pos = new double[3*MAX_CAPACITY];
-		double[] vel = new double[3*MAX_CAPACITY];
-		length += offset;
-		while(offset < length) {
-			int i = Bits.getShort(data, offset) & 0xffff;
-			offset += 2;
-			pos[3*i] = Bits.getDouble(data, offset);
-			offset += 8;
-			pos[3*i+1] = Bits.getDouble(data, offset);
-			offset += 8;
-			pos[3*i+2] = Bits.getDouble(data, offset);
-			offset += 8;
-			vel[3*i] = Bits.getDouble(data, offset);
-			offset += 8;
-			vel[3*i+1] = Bits.getDouble(data, offset);
-			offset += 8;
-			vel[3*i+2] = Bits.getDouble(data, offset);
-			offset += 8;
-		}
-		interpolation.updatePosition(pos, vel, time);
 	}
 
 	@Override

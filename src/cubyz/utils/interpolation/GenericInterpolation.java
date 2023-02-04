@@ -1,6 +1,8 @@
 package cubyz.utils.interpolation;
 
+import cubyz.client.entity.InterpolatedItemEntityManager;
 import cubyz.utils.Logger;
+import cubyz.utils.math.Bits;
 
 import java.util.Arrays;
 
@@ -148,5 +150,30 @@ public class GenericInterpolation {
 				}
 			}
 		}
+	}
+
+	public void readPosition(InterpolatedItemEntityManager interpolatedItemEntityManager, byte[] data, int offset, int length, short time) {
+		assert length%(6*8 + 2) == 0 : "length must be a multiple of 6*8 + 2";
+		interpolatedItemEntityManager.timeDifference.addDataPoint(time);
+		double[] pos = new double[3*InterpolatedItemEntityManager.MAX_CAPACITY];
+		double[] vel = new double[3*InterpolatedItemEntityManager.MAX_CAPACITY];
+		length += offset;
+		while(offset < length) {
+			int i = Bits.getShort(data, offset) & 0xffff;
+			offset += 2;
+			pos[3*i] = Bits.getDouble(data, offset);
+			offset += 8;
+			pos[3*i+1] = Bits.getDouble(data, offset);
+			offset += 8;
+			pos[3*i+2] = Bits.getDouble(data, offset);
+			offset += 8;
+			vel[3*i] = Bits.getDouble(data, offset);
+			offset += 8;
+			vel[3*i+1] = Bits.getDouble(data, offset);
+			offset += 8;
+			vel[3*i+2] = Bits.getDouble(data, offset);
+			offset += 8;
+		}
+		updatePosition(pos, vel, time);
 	}
 }

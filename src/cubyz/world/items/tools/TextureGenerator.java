@@ -317,48 +317,12 @@ public final class TextureGenerator {
 		
 		// Count all neighbors:
 		int[] neighborCount = new int[25];
-		for(int x = 0; x < 5; x++) {
-			for(int y = 0; y < 5; y++) {
-				Item[] offsetGrid = new Item[25];
-				for(int dx = -2; dx <= 2; dx++) {
-					for(int dy = -2; dy <= 2; dy++) {
-						if (x + dx >= 0 && x + dx < 5) {
-							if (y + dy >= 0 && y + dy < 5) {
-								int index = x + dx + 5 * (y + dy);
-								int offsetIndex = 2 + dx + 5 * (2 + dy);
-								offsetGrid[offsetIndex] = tool.craftingGrid[index];
-							}
-						}
-					}
-				}
-				int index = x + 5 * y;
-				neighborCount[index] = countNeighbors(offsetGrid);
-			}
-		}
-
+		
+		countAllNeighbors(neighborCount, tool);
+		
 		// Push all items from the regions on a 16×16 image grid.
-		for(int x = 0; x < 5; x++) {
-			for(int y = 0; y < 5; y++) {
-
-				Item[] offsetGrid = new Item[25];
-				int[] offsetNeighborCount = new int[25];
-				for(int dx = -2; dx <= 2; dx++) {
-					for(int dy = -2; dy <= 2; dy++) {
-						if (x + dx >= 0 && x + dx < 5) {
-							if (y + dy >= 0 && y + dy < 5) {
-								int index = x + dx + 5 * (y + dy);
-								int offsetIndex = 2 + dx + 5 * (2 + dy);
-								offsetGrid[offsetIndex] = tool.craftingGrid[index];
-								offsetNeighborCount[offsetIndex] = neighborCount[index];
-							}
-						}
-					}
-				}
-				int index = x + 5*y;
-				drawRegion(offsetGrid, offsetNeighborCount, GRID_CENTERS_X[index] - 2, GRID_CENTERS_Y[index] - 2, pixelMaterials);
-			}
-		}
-
+		countAllItems(tool, neighborCount, pixelMaterials);
+		
 		Item[][] itemGrid = tool.materialGrid;
 		for(int x = 0; x < 16; x++) {
 			for(int y = 0; y < 16; y++) {
@@ -383,5 +347,51 @@ public final class TextureGenerator {
 				img.setRGB(x, y, mat.material.colorPalette[light]);
 			}
 		}
+	}
+	
+	private static void countAllNeighbors(int[] neighborCount, Tool tool) {
+		for(int x = 0; x < 5; x++) {
+			for(int y = 0; y < 5; y++) {
+				Item[] offsetGrid = new Item[25];
+				for(int dx = -2; dx <= 2; dx++) {
+					for(int dy = -2; dy <= 2; dy++) {
+						if (x + dx >= 0 && x + dx < 5) {
+							if (y + dy >= 0 && y + dy < 5) {
+								int index = x + dx + 5 * (y + dy);
+								int offsetIndex = 2 + dx + 5 * (2 + dy);
+								offsetGrid[offsetIndex] = tool.craftingGrid[index];
+							}
+						}
+					}
+				}
+				int index = x + 5 * y;
+				neighborCount[index] = countNeighbors(offsetGrid);
+			}
+		}
+	}
+	
+	private static void countAllItems(Tool tool, int[] neighborCount, PixelData[][] pixelMaterials) {
+		for(int x = 0; x < 5; x++) {
+			for(int y = 0; y < 5; y++) {
+
+				Item[] offsetGrid = new Item[25];
+				int[] offsetNeighborCount = new int[25];
+				for(int dx = -2; dx <= 2; dx++) {
+					for(int dy = -2; dy <= 2; dy++) {
+						if (x + dx >= 0 && x + dx < 5) {
+							if (y + dy >= 0 && y + dy < 5) {
+								int index = x + dx + 5 * (y + dy);
+								int offsetIndex = 2 + dx + 5 * (2 + dy);
+								offsetGrid[offsetIndex] = tool.craftingGrid[index];
+								offsetNeighborCount[offsetIndex] = neighborCount[index];
+							}
+						}
+					}
+				}
+				int index = x + 5*y;
+				drawRegion(offsetGrid, offsetNeighborCount, GRID_CENTERS_X[index] - 2, GRID_CENTERS_Y[index] - 2, pixelMaterials);
+			}
+		}
+
 	}
 }

@@ -11,6 +11,7 @@ import cubyz.gui.components.InventorySlot;
 import cubyz.gui.input.Mouse;
 import cubyz.rendering.Graphics;
 import cubyz.rendering.Window;
+import cubyz.world.items.Inventory;
 import cubyz.world.items.Item;
 import cubyz.world.items.ItemStack;
 
@@ -94,6 +95,18 @@ public abstract class GeneralInventory extends MenuGUI {
 	@Override
 	public boolean doesPauseGame() {
 		return false;
+	}
+	
+	protected void initInventorySlot(Inventory inventory, InventorySlot[] outerInv) {
+		for(int i = 0; i < 8; i++) {
+			outerInv[i] = new InventorySlot(inventory.getStack(i), (i - 4) * 20 * GUI_SCALE, 30 * GUI_SCALE, Component.ALIGN_BOTTOM);
+			outerInv[i + 8] = new InventorySlot(inventory.getStack(i + 8), (i - 4) * 20 * GUI_SCALE, 80 * GUI_SCALE, Component.ALIGN_BOTTOM);
+			outerInv[i + 16] = new InventorySlot(inventory.getStack(i + 16), (i - 4) * 20 * GUI_SCALE, 100 * GUI_SCALE, Component.ALIGN_BOTTOM);
+			outerInv[i + 24] = new InventorySlot(inventory.getStack(i + 24), (i - 4) * 20 * GUI_SCALE, 120 * GUI_SCALE, Component.ALIGN_BOTTOM);	
+		}
+//		Debugging for 3rd assignment.
+//		outerInv[0] = new InventorySlot(inventory.getStack(0), (0 - 4) * 20 * GUI_SCALE, 30 * GUI_SCALE, Component.ALIGN_BOTTOM);
+//		System.out.println(outerInv[0]);
 	}
 
 	protected abstract void positionSlots();

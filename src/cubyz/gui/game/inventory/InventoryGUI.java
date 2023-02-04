@@ -69,18 +69,11 @@ public class InventoryGUI extends GeneralInventory {
 		playerInventorySize = Cubyz.player.getInventory_AND_DONT_FORGET_TO_SEND_CHANGES_TO_THE_SERVER().getCapacity();
 		inv = new InventorySlot[playerInventorySize + 5];
 		Inventory inventory = Cubyz.player.getInventory_AND_DONT_FORGET_TO_SEND_CHANGES_TO_THE_SERVER();
-		for(int i = 0; i < 8; i++) {
-			inv[i] = new InventorySlot(inventory.getStack(i), (i - 4) * 20 * GUI_SCALE, 30 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 8] = new InventorySlot(inventory.getStack(i + 8), (i - 4) * 20 * GUI_SCALE, 80 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 16] = new InventorySlot(inventory.getStack(i + 16), (i - 4) * 20 * GUI_SCALE, 100 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 24] = new InventorySlot(inventory.getStack(i + 24), (i - 4) * 20 * GUI_SCALE, 120 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
+//		Debugging for the 3rd assignment.
+//		System.out.println("-----------------------------Before" + inv);
+		initInventorySlot(inventory, inv);
+//		Debugging for the 3rd assignment.
+//		System.out.println(inv[0]);
 		inv[playerInventorySize] = new InventorySlot(new ItemStack(), 0 * GUI_SCALE, 180 * GUI_SCALE, Component.ALIGN_BOTTOM);
 		inv[playerInventorySize+1] = new InventorySlot(new ItemStack(), 20 * GUI_SCALE, 180 * GUI_SCALE, Component.ALIGN_BOTTOM);
 		inv[playerInventorySize+2] = new InventorySlot(new ItemStack(), 0 * GUI_SCALE, 160 * GUI_SCALE, Component.ALIGN_BOTTOM);

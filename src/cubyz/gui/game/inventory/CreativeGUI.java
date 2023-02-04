@@ -49,18 +49,7 @@ public class CreativeGUI extends GeneralInventory {
 	@Override
 	public void setInventory(Inventory in) {
 		Inventory inventory = Cubyz.player.getInventory_AND_DONT_FORGET_TO_SEND_CHANGES_TO_THE_SERVER();
-		for(int i = 0; i < 8; i++) {
-			inv[i] = new InventorySlot(inventory.getStack(i), (i - 4) * 20 * GUI_SCALE, 30 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 8] = new InventorySlot(inventory.getStack(i + 8), (i - 4) * 20 * GUI_SCALE, 80 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 16] = new InventorySlot(inventory.getStack(i + 16), (i - 4) * 20 * GUI_SCALE, 100 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 24] = new InventorySlot(inventory.getStack(i + 24), (i - 4) * 20 * GUI_SCALE, 120 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
+		initInventorySlot(inventory, inv);
 		
 		Item[] items = Cubyz.world.registries.itemRegistry.registered(new Item[0]);
 		int x = -80 * GUI_SCALE;

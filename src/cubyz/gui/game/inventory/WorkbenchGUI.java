@@ -62,18 +62,7 @@ public class WorkbenchGUI extends GeneralInventory {
 		this.in = in;
 		inv = new InventorySlot[58];
 		Inventory inventory = Cubyz.player.getInventory_AND_DONT_FORGET_TO_SEND_CHANGES_TO_THE_SERVER();
-		for(int i = 0; i < 8; i++) {
-			inv[i] = new InventorySlot(inventory.getStack(i), (i - 4) * 20 * GUI_SCALE, 30 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 8] = new InventorySlot(inventory.getStack(i + 8), (i - 4) * 20 * GUI_SCALE, 80 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 16] = new InventorySlot(inventory.getStack(i + 16), (i - 4) * 20 * GUI_SCALE, 100 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
-		for(int i = 0; i < 8; i++) {
-			inv[i + 24] = new InventorySlot(inventory.getStack(i + 24), (i - 4) * 20 * GUI_SCALE, 120 * GUI_SCALE, Component.ALIGN_BOTTOM);
-		}
+		initInventorySlot(inventory, inv);
 		inv[32] = new InventorySlot(in.getStack(0), -60 * GUI_SCALE, 230 * GUI_SCALE, Component.ALIGN_BOTTOM);
 		inv[33] = new InventorySlot(in.getStack(1), -40 * GUI_SCALE, 230 * GUI_SCALE, Component.ALIGN_BOTTOM);
 		inv[34] = new InventorySlot(in.getStack(2), -20 * GUI_SCALE, 230 * GUI_SCALE, Component.ALIGN_BOTTOM);

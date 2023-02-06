@@ -9,7 +9,7 @@ public final class ClimateMap {
 	private static final int CACHE_MASK = CACHE_SIZE - 1;
 	private static final int ASSOCIATIVITY = 4;
 	private static final Cache<ClimateMapFragment> cache = new Cache<>(new ClimateMapFragment[CACHE_SIZE][ASSOCIATIVITY]);
-	private static ClimateMapFragment climateMap;
+	private static ClimateMapFragment climateMap = new ClimateMapFragment(0, 0);
 	
 
 	private static TerrainGenerationProfile profile;

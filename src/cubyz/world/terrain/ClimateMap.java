@@ -9,29 +9,31 @@ public final class ClimateMap {
 	private static final int CACHE_MASK = CACHE_SIZE - 1;
 	private static final int ASSOCIATIVITY = 4;
 	private static final Cache<ClimateMapFragment> cache = new Cache<>(new ClimateMapFragment[CACHE_SIZE][ASSOCIATIVITY]);
+	private static ClimateMapFragment climateMap;
+	
 
 	private static TerrainGenerationProfile profile;
 
 	public static BiomePoint[][] getBiomeMap(int wx, int wz, int width, int height) {
 		BiomePoint[][] map = new BiomePoint[width/MapFragment.BIOME_SIZE][height/MapFragment.BIOME_SIZE];
-		int wxStart = wx & ~ClimateMapFragment.MAP_MASK;
-		int wzStart = wz & ~ClimateMapFragment.MAP_MASK;
-		int wxEnd = wx+width & ~ClimateMapFragment.MAP_MASK;
-		int wzEnd = wz+height & ~ClimateMapFragment.MAP_MASK;
-		for(int x = wxStart; x <= wxEnd; x += ClimateMapFragment.MAP_SIZE) {
-			for(int z = wzStart; z <= wzEnd; z += ClimateMapFragment.MAP_SIZE) {
+		int wxStart = wx & ~climateMap.getMapMask();
+		int wzStart = wz & ~climateMap.getMapMask();
+		int wxEnd = wx+width & ~climateMap.getMapMask();
+		int wzEnd = wz+height & ~climateMap.getMapMask();
+		for(int x = wxStart; x <= wxEnd; x += climateMap.getMapSize()) {
+			for(int z = wzStart; z <= wzEnd; z += climateMap.getMapSize()) {
 				ClimateMapFragment mapPiece = getOrGenerateFragment(x, z);
 				// Offset of the indices in the result map:
 				int xOffset = (x - wx) >> MapFragment.BIOME_SHIFT;
 				int zOffset = (z - wz) >> MapFragment.BIOME_SHIFT;
 				// Go through all indices in the mapPiece:
-				for(int lx = 0; lx < mapPiece.map.length; lx++) {
+				for(int lx = 0; lx < mapPiece.getMap().length; lx++) {
 					int resultX = lx + xOffset;
 					if (resultX < 0 || resultX >= map.length) continue;
-					for(int lz = 0; lz < mapPiece.map[0].length; lz++) {
+					for(int lz = 0; lz < mapPiece.getMap()[0].length; lz++) {
 						int resultZ = lz + zOffset;
 						if (resultZ < 0 || resultZ >= map.length) continue;
-						map[resultX][resultZ] = mapPiece.map[lx][lz];
+						map[resultX][resultZ] = mapPiece.getMap()[lx][lz];
 					}
 				}
 			}
@@ -48,14 +50,14 @@ public final class ClimateMap {
 		@Override
 		public boolean equals(Object other) {
 			if (other instanceof ClimateMapFragment) {
-				return ((ClimateMapFragment)other).wx == wx && ((ClimateMapFragment)other).wz == wz;
+				return ((ClimateMapFragment)other).getWx() == wx && ((ClimateMapFragment)other).getWz() == wz;
 			}
 			return false;
 		}
 	}
 	
 	public static ClimateMapFragment getOrGenerateFragment(int wx, int wz) {
-		int hash = ClimateMapFragment.hashCode(wx, wz) & CACHE_MASK;
+		int hash = climateMap.hashCode(wx, wz) & CACHE_MASK;
 		ClimateMapFragment ret = cache.find(new ClimateMapFragmentComparator(wx, wz), hash);
 		if (ret != null) return ret;
 		synchronized(cache.cache[hash]) {

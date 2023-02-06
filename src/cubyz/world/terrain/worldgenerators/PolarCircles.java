@@ -47,17 +47,17 @@ public class PolarCircles implements ClimateMapGenerator {
 	@Override
 	public void generateMapFragment(ClimateMapFragment map, long seed) {
 		// Create the surrounding height and wind maps needed for wind propagation:
-		float[][] heightMap = new float[3 * MAP_SIZE / MapFragment.BIOME_SIZE][3 * MAP_SIZE / MapFragment.BIOME_SIZE];
-		FractalNoise.generateSparseFractalTerrain(map.wx - MAP_SIZE, map.wz - MAP_SIZE, 3 * MAP_SIZE, 3 * MAP_SIZE,
-				MAP_SIZE / 16, seed ^ 92786504683290654L, heightMap, MapFragment.BIOME_SIZE);
+		float[][] heightMap = new float[3 * map.getMapSize() / MapFragment.BIOME_SIZE][3 * map.getMapSize() / MapFragment.BIOME_SIZE];
+		FractalNoise.generateSparseFractalTerrain(map.getWx() - map.getMapSize(), map.getWz() - map.getMapSize(), 3 * map.getMapSize(), 3 * map.getMapSize(),
+				map.getMapSize() / 16, seed ^ 92786504683290654L, heightMap, MapFragment.BIOME_SIZE);
 		
-		float[][] windXMap = new float[3 * MAP_SIZE / MapFragment.BIOME_SIZE][3 * MAP_SIZE / MapFragment.BIOME_SIZE];
-		FractalNoise.generateSparseFractalTerrain(map.wx - MAP_SIZE, map.wz - MAP_SIZE, 3 * MAP_SIZE, 3 * MAP_SIZE,
-				MAP_SIZE / 8, seed ^ 4382905640235972L, windXMap, MapFragment.BIOME_SIZE);
+		float[][] windXMap = new float[3 * map.getMapSize() / MapFragment.BIOME_SIZE][3 * map.getMapSize() / MapFragment.BIOME_SIZE];
+		FractalNoise.generateSparseFractalTerrain(map.getWx() - map.getMapSize(), map.getWz() - map.getMapSize(), 3 * map.getMapSize(), 3 * map.getMapSize(),
+				map.getMapSize() / 8, seed ^ 4382905640235972L, windXMap, MapFragment.BIOME_SIZE);
 		
-		float[][] windZMap = new float[3 * MAP_SIZE / MapFragment.BIOME_SIZE][3 * MAP_SIZE / MapFragment.BIOME_SIZE];
-		FractalNoise.generateSparseFractalTerrain(map.wx - MAP_SIZE, map.wz - MAP_SIZE, 3 * MAP_SIZE, 3 * MAP_SIZE,
-				MAP_SIZE / 8, seed ^ 532985472894530L, windZMap, MapFragment.BIOME_SIZE);
+		float[][] windZMap = new float[3 * map.getMapSize() / MapFragment.BIOME_SIZE][3 * map.getMapSize() / MapFragment.BIOME_SIZE];
+		FractalNoise.generateSparseFractalTerrain(map.getWx() - map.getMapSize(), map.getWz() - map.getMapSize(), 3 * map.getMapSize(), 3 * map.getMapSize(),
+				map.getMapSize() / 8, seed ^ 532985472894530L, windZMap, MapFragment.BIOME_SIZE);
 		
 		// Make non-ocean regions more flat:
 		for (int x = 0; x < heightMap.length; x++) {
@@ -80,33 +80,33 @@ public class PolarCircles implements ClimateMapGenerator {
 
 		FastRandom rand = new FastRandom(0);
 
-		Biome[][] biomeMap = new Biome[map.map.length + 2][map.map.length + 2];
+		Biome[][] biomeMap = new Biome[map.getMap().length + 2][map.getMap().length + 2];
 		
-		for (int x = -1; x < map.map.length + 1; x++) {
-			for (int z = -1; z < map.map.length + 1; z++) {
-				rand.setSeed((x + map.wx)*65784967549L + (z + map.wz)*6758934659L + seed);
+		for (int x = -1; x < map.getMap().length + 1; x++) {
+			for (int z = -1; z < map.getMap().length + 1; z++) {
+				rand.setSeed((x + map.getWx())*65784967549L + (z + map.getWz())*6758934659L + seed);
 				float xOffset = rand.nextFloat() - 0.5f;
 				float zOffset = rand.nextFloat() - 0.5f;
-				float humid = getInitialHumidity(map, x, z, heightMap[x + map.map.length][z + map.map.length]);
-				float temp = getInitialTemperature(map, x, z, heightMap[x + map.map.length][z + map.map.length]);
+				float humid = getInitialHumidity(map, x, z, heightMap[x + map.getMap().length][z + map.getMap().length]);
+				float temp = getInitialTemperature(map, x, z, heightMap[x + map.getMap().length][z + map.getMap().length]);
 				float humidInfluence = WIND_INFLUENCE;
 				float tempInfluence = WIND_INFLUENCE;
 				float nextX = x + xOffset;
 				float nextZ = z + zOffset;
 				for (int i = 0; i < 50; i++) {
-					float windX = windXMap[(int) nextX + map.map.length][(int) nextZ + map.map.length];
-					float windZ = windXMap[(int) nextX + map.map.length][(int) nextZ + map.map.length];
+					float windX = windXMap[(int) nextX + map.getMap().length][(int) nextZ + map.getMap().length];
+					float windZ = windXMap[(int) nextX + map.getMap().length][(int) nextZ + map.getMap().length];
 					nextX += windX*WIND_SPEED;
 					nextZ += windZ*WIND_SPEED;
 					// Make sure the bounds are ok:
-					if (nextX < -map.map.length || nextX > 2*map.map.length - 1) {
+					if (nextX < -map.getMap().length || nextX > 2*map.getMap().length - 1) {
 						break;
 					}
-					if (nextZ < -map.map.length || nextZ > 2*map.map.length - 1) {
+					if (nextZ < -map.getMap().length || nextZ > 2*map.getMap().length - 1) {
 						break;
 					}
 					// Find the local temperature and humidity:
-					float localHeight = heightMap[(int) nextX + map.map.length][(int) nextZ + map.map.length];
+					float localHeight = heightMap[(int) nextX + map.getMap().length][(int) nextZ + map.getMap().length];
 					float localTemp = getInitialTemperature(map, nextX, nextZ, localHeight);
 					float localHumid = getInitialHumidity(map, nextX, nextZ, localHeight);
 					humid = (1 - humidInfluence) * humid + humidInfluence * localHumid;
@@ -114,15 +114,15 @@ public class PolarCircles implements ClimateMapGenerator {
 					tempInfluence *= 0.9f; // Distance reduction
 					humidInfluence *= 0.9f; // Distance reduction
 					// Reduction from mountains:
-					humidInfluence *= Math.pow(1 - heightMap[(int) nextX + map.map.length][(int) nextZ + map.map.length], 0.05);
+					humidInfluence *= Math.pow(1 - heightMap[(int) nextX + map.getMap().length][(int) nextZ + map.getMap().length], 0.05);
 				}
 				// Insert the biome type:
-				Biome.Type type = findClimate(heightMap[x + map.map.length][z + map.map.length], humid, temp);
+				Biome.Type type = findClimate(heightMap[x + map.getMap().length][z + map.getMap().length], humid, temp);
 				biomeMap[x+1][z+1] = registries.biomeRegistry.byTypeBiomes.get(type).getRandomly(rand);
 			}
 		}
-		for (int x = 0; x < map.map.length; x++) {
-			for (int z = 0; z < map.map.length; z++) {
+		for (int x = 0; x < map.getMap().length; x++) {
+			for (int z = 0; z < map.getMap().length; z++) {
 				Biome biome = biomeMap[x+1][z+1];
 				// Check the surrounding heights to avoid sudden changes:
 				float maxMinHeight = -Float.MAX_VALUE;
@@ -133,7 +133,7 @@ public class PolarCircles implements ClimateMapGenerator {
 						minMaxHeight = Math.min(minMaxHeight, biomeMap[x+dx+1][z+dz+1].maxHeight);
 					}
 				}
-				rand.setSeed((x + map.wx)*675893674893L + (z + map.wz)*2895478591L + seed);
+				rand.setSeed((x + map.getWx())*675893674893L + (z + map.getWz())*2895478591L + seed);
 				float xOffset = rand.nextFloat() - 0.5f;
 				float zOffset = rand.nextFloat() - 0.5f;
 				float height = rand.nextFloat();
@@ -145,9 +145,9 @@ public class PolarCircles implements ClimateMapGenerator {
 				}
 				height = height*(biome.maxHeight - biome.minHeight) + biome.minHeight;
 
-				int wx = x*MapFragment.BIOME_SIZE + map.wx;
-				int wz = z*MapFragment.BIOME_SIZE + map.wz;
-				map.map[x][z] = new BiomePoint(biome, wx + (int)(xOffset*MapFragment.BIOME_SIZE),
+				int wx = x*MapFragment.BIOME_SIZE + map.getWx();
+				int wz = z*MapFragment.BIOME_SIZE + map.getWz();
+				map.getMap()[x][z] = new BiomePoint(biome, wx + (int)(xOffset*MapFragment.BIOME_SIZE),
 				                                      wz + (int)(zOffset*MapFragment.BIOME_SIZE),
 				                                      height, rand.nextLong());
 			}
@@ -156,8 +156,8 @@ public class PolarCircles implements ClimateMapGenerator {
 	
 	private float getInitialHumidity(ClimateMapFragment map, double x, double z, float height) {
 		if (height < OCEAN_THRESHOLD) return 1;
-		x = x + (map.wx >> MapFragment.BIOME_SHIFT);
-		z = z + (map.wz >> MapFragment.BIOME_SHIFT);
+		x = x + (map.getWx() >> MapFragment.BIOME_SHIFT);
+		z = z + (map.getWz() >> MapFragment.BIOME_SHIFT);
 		double distance = Math.sqrt(x*x + z*z)/RING_SIZE;
 		distance %= 1;
 		// On earth there is high humidity at the equator and the poles and low humidty at around 30°.
@@ -173,8 +173,8 @@ public class PolarCircles implements ClimateMapGenerator {
 	}
 	
 	private float getInitialTemperature(ClimateMapFragment map, double x, double z, float height) {
-		x = x + (map.wx >> MapFragment.BIOME_SHIFT);
-		z = z + (map.wz >> MapFragment.BIOME_SHIFT);
+		x = x + (map.getWx() >> MapFragment.BIOME_SHIFT);
+		z = z + (map.getWz() >> MapFragment.BIOME_SHIFT);
 		double temp = Math.sqrt(x*x + z*z)/RING_SIZE%1;
 		// Uses a simple triangle function:
 		if (temp > 0.5f) {

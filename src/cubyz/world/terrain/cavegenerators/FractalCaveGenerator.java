@@ -116,60 +116,62 @@ public class FractalCaveGenerator implements CaveGenerator {
 		}
 	}
 	
-	private void generateCaveBetween(long seed, CaveMapFragment map, double startwx, double startwy, double startwz, double endwx, double endwy, double endwz, double biasx, double biasy, double biasz, double startRadius, double endRadius, float randomness) {
+	private void generateCaveBetween(GenerateCaveBetweenParameter1 parameterObject, double biasx, double biasy, double biasz, double startRadius, double endRadius, float randomness) {
 		// Check if the segment can cross this chunk:
 		double maxHeight = Math.max(startRadius, endRadius);
-		double distance = Vector3d.distance(startwx, startwy, startwz, endwx, endwy, endwz);
+		double distance = Vector3d.distance(parameterObject.startwx, parameterObject.startwy, parameterObject.startwz, parameterObject.endwx, parameterObject.endwy, parameterObject.endwz);
 		double maxFractalShift = distance*randomness;
 		double safetyInterval = maxHeight + maxFractalShift;
-		double xMin = Math.min(startwx, endwx) - safetyInterval;
-		double yMin = Math.min(startwy, endwy) - safetyInterval;
-		double zMin = Math.min(startwz, endwz) - safetyInterval;
-		double xMax = Math.max(startwx, endwx) + safetyInterval;
-		double yMax = Math.max(startwy, endwy) + safetyInterval;
-		double zMax = Math.max(startwz, endwz) + safetyInterval;
-		if(xMin < map.wx + CaveMapFragment.WIDTH*map.voxelSize && xMax > map.wx
-		&& yMin < map.wy + CaveMapFragment.HEIGHT*map.voxelSize && yMax > map.wy
-		&& zMin < map.wz + CaveMapFragment.WIDTH*map.voxelSize && zMax > map.wz) { // Only divide further if the cave may go through ther considered chunk.
-			FastRandom rand = new FastRandom(seed);
+		double xMin = Math.min(parameterObject.startwx, parameterObject.endwx) - safetyInterval;
+		double yMin = Math.min(parameterObject.startwy, parameterObject.endwy) - safetyInterval;
+		double zMin = Math.min(parameterObject.startwz, parameterObject.endwz) - safetyInterval;
+		double xMax = Math.max(parameterObject.startwx, parameterObject.endwx) + safetyInterval;
+		double yMax = Math.max(parameterObject.startwy, parameterObject.endwy) + safetyInterval;
+		double zMax = Math.max(parameterObject.startwz, parameterObject.endwz) + safetyInterval;
+		if(xMin < parameterObject.map.wx + CaveMapFragment.WIDTH*parameterObject.map.voxelSize && xMax > parameterObject.map.wx
+		&& yMin < parameterObject.map.wy + CaveMapFragment.HEIGHT*parameterObject.map.voxelSize && yMax > parameterObject.map.wy
+		&& zMin < parameterObject.map.wz + CaveMapFragment.WIDTH*parameterObject.map.voxelSize && zMax > parameterObject.map.wz) { // Only divide further if the cave may go through ther considered chunk.
+			FastRandom rand = new FastRandom(parameterObject.seed);
 			// If the lowest level is reached carve out the cave:
-			if(distance < map.voxelSize) {
-				generateSphere(rand, map, startwx, startwy, startwz, startRadius);
+			if(distance < parameterObject.map.voxelSize) {
+				generateSphere(rand, parameterObject.map, parameterObject.startwx, parameterObject.startwy, parameterObject.startwz, startRadius);
 			} else { // Otherwise go to the next fractal level:
-				double midwx = (startwx + endwx)/2 + maxFractalShift*((2*rand.nextFloat() - 1)) + biasx/4;
-				double midwy = (startwy + endwy)/2 + maxFractalShift*((2*rand.nextFloat() - 1)) + biasy/4;
-				double midwz = (startwz + endwz)/2 + maxFractalShift*((2*rand.nextFloat() - 1)) + biasz/4;
+				double midwx = (parameterObject.startwx + parameterObject.endwx)/2 + maxFractalShift*((2*rand.nextFloat() - 1)) + biasx/4;
+				double midwy = (parameterObject.startwy + parameterObject.endwy)/2 + maxFractalShift*((2*rand.nextFloat() - 1)) + biasy/4;
+				double midwz = (parameterObject.startwz + parameterObject.endwz)/2 + maxFractalShift*((2*rand.nextFloat() - 1)) + biasz/4;
 				double midRadius = (startRadius + endRadius)/2 + maxFractalShift*(2*rand.nextFloat() - 1)*HEIGHT_VARIANCE;
 				midRadius = Math.max(midRadius, MIN_RADIUS);
-				generateCaveBetween(rand.nextLong(), map, startwx, startwy, startwz, midwx, midwy, midwz, biasx/4, biasy/4, biasz/4, startRadius, midRadius, randomness);
-				generateCaveBetween(rand.nextLong(), map, midwx, midwy, midwz, endwx, endwy, endwz, biasx/4, biasy/4, biasz/4, midRadius, endRadius, randomness);
+				generateCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, parameterObject.startwx,
+						parameterObject.startwy, parameterObject.startwz, midwx, midwy, midwz), biasx/4, biasy/4, biasz/4, startRadius, midRadius, randomness);
+				generateCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, midwx, midwy, midwz,
+						parameterObject.endwx, parameterObject.endwy, parameterObject.endwz), biasx/4, biasy/4, biasz/4, midRadius, endRadius, randomness);
 			}
 		}
 	}
 	
-	private void generateBranchingCaveBetween(long seed, CaveMapFragment map, double startwx, double startwy, double startwz, double endwx, double endwy, double endwz, double biasX, double biasY, double biasZ, double startRadius, double endRadius, int centerwx, int centerwy, int centerwz, double branchLength, float randomness, boolean isStart, boolean isEnd) {
-		double distance = Vector3d.distance(startwx, startwy, startwz, endwx, endwy, endwz);
-		FastRandom rand = new FastRandom(seed);
+	private void generateBranchingCaveBetween(GenerateCaveBetweenParameter1 parameterObject, double biasX, double biasY, double biasZ, double startRadius, double endRadius, int centerwx, int centerwy, int centerwz, double branchLength, float randomness, boolean isStart, boolean isEnd) {
+		double distance = Vector3d.distance(parameterObject.startwx, parameterObject.startwy, parameterObject.startwz, parameterObject.endwx, parameterObject.endwy, parameterObject.endwz);
+		FastRandom rand = new FastRandom(parameterObject.seed);
 		if(distance < 32) {
 			// No more branches below that level to avoid crowded caves.
-			generateCaveBetween(rand.nextLong(), map, startwx, startwy, startwz, endwx, endwy, endwz, biasX, biasY, biasZ, startRadius, endRadius, randomness);
+			generateCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, parameterObject.startwx, parameterObject.startwy, parameterObject.startwz, parameterObject.endwx, parameterObject.endwy, parameterObject.endwz), biasX, biasY, biasZ, startRadius, endRadius, randomness);
 			// Small chance to branch off:
 			if(!isStart && rand.nextFloat() < BRANCH_CHANCE && branchLength > 8) {
-				endwx = startwx + branchLength*(2*rand.nextFloat() - 1);
-				endwy = startwy + branchLength*(2*rand.nextFloat() - 1);
-				endwz = startwz + branchLength*(2*rand.nextFloat() - 1);
-				double distanceToSeedPoint = Vector3d.distance(endwx, endwy, endwz, centerwx, centerwy, centerwz);
+				parameterObject.endwx = parameterObject.startwx + branchLength*(2*rand.nextFloat() - 1);
+				parameterObject.endwy = parameterObject.startwy + branchLength*(2*rand.nextFloat() - 1);
+				parameterObject.endwz = parameterObject.startwz + branchLength*(2*rand.nextFloat() - 1);
+				double distanceToSeedPoint = Vector3d.distance(parameterObject.endwx, parameterObject.endwy, parameterObject.endwz, centerwx, centerwy, centerwz);
 				// Reduce distance to avoid cutoffs:
 				if(distanceToSeedPoint > (RANGE - 1)*CHUNK_SIZE) {
-					endwx = centerwx + (endwx - centerwx)/distanceToSeedPoint*((RANGE - 1)*CHUNK_SIZE);
-					endwy = centerwy + (endwy - centerwy)/distanceToSeedPoint*((RANGE - 1)*CHUNK_SIZE);
-					endwz = centerwz + (endwz - centerwz)/distanceToSeedPoint*((RANGE - 1)*CHUNK_SIZE);
+					parameterObject.endwx = centerwx + (parameterObject.endwx - centerwx)/distanceToSeedPoint*((RANGE - 1)*CHUNK_SIZE);
+					parameterObject.endwy = centerwy + (parameterObject.endwy - centerwy)/distanceToSeedPoint*((RANGE - 1)*CHUNK_SIZE);
+					parameterObject.endwz = centerwz + (parameterObject.endwz - centerwz)/distanceToSeedPoint*((RANGE - 1)*CHUNK_SIZE);
 				}
 				startRadius = (startRadius - MIN_RADIUS)*rand.nextFloat() + MIN_RADIUS;
 				biasX = branchLength*(rand.nextDouble()*2 - 1);
 				biasY = branchLength*(rand.nextDouble() - 0.5);
 				biasZ = branchLength*(rand.nextDouble()*2 - 1);
-				generateBranchingCaveBetween(rand.nextLong(), map, startwx, startwy, startwz, endwx, endwy, endwz, biasX, biasY, biasZ, startRadius, MIN_RADIUS, centerwx, centerwy, centerwz, branchLength/2, Math.min(0.5f, randomness + randomness*rand.nextFloat()*rand.nextFloat()), true, true);
+				generateBranchingCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, parameterObject.startwx, parameterObject.startwy, parameterObject.startwz, parameterObject.endwx, parameterObject.endwy, parameterObject.endwz), biasX, biasY, biasZ, startRadius, MIN_RADIUS, centerwx, centerwy, centerwz, branchLength/2, Math.min(0.5f, randomness + randomness*rand.nextFloat()*rand.nextFloat()), true, true);
 			}
 			return;
 		}
@@ -198,13 +200,13 @@ public class FractalCaveGenerator implements CaveGenerator {
 			biasY += offsetY;
 			biasZ += offsetZ;
 			
-			double midwx = startwx*weight + endwx*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasX*weight*(1 - weight);
-			double midwy = startwy*weight + endwy*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasY*weight*(1 - weight);
-			double midwz = startwz*weight + endwz*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasZ*weight*(1 - weight);
+			double midwx = parameterObject.startwx*weight + parameterObject.endwx*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasX*weight*(1 - weight);
+			double midwy = parameterObject.startwy*weight + parameterObject.endwy*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasY*weight*(1 - weight);
+			double midwz = parameterObject.startwz*weight + parameterObject.endwz*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasZ*weight*(1 - weight);
 			double midRadius = (startRadius + endRadius)/2 + maxFractalShift*(2*rand.nextFloat() - 1)*HEIGHT_VARIANCE;
 			midRadius = Math.max(midRadius, MIN_RADIUS);
-			generateBranchingCaveBetween(rand.nextLong(), map, startwx, startwy, startwz, midwx, midwy, midwz, biasX*w1, biasY*w1, biasZ*w1, startRadius, midRadius, centerwx, centerwy, centerwz, branchLength, randomness, isStart, false);
-			generateBranchingCaveBetween(rand.nextLong(), map, midwx, midwy, midwz, endwx, endwy, endwz, biasX*w2, biasY*w2, biasZ*w2, midRadius, endRadius, centerwx, centerwy, centerwz, branchLength, randomness, false, isEnd);
+			generateBranchingCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, parameterObject.startwx, parameterObject.startwy, parameterObject.startwz, midwx, midwy, midwz), biasX*w1, biasY*w1, biasZ*w1, startRadius, midRadius, centerwx, centerwy, centerwz, branchLength, randomness, isStart, false);
+			generateBranchingCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, midwx, midwy, midwz, parameterObject.endwx, parameterObject.endwy, parameterObject.endwz) , biasX*w2, biasY*w2, biasZ*w2, midRadius, endRadius, centerwx, centerwy, centerwz, branchLength, randomness, false, isEnd);
 			
 			// Do some tweaking to the variables before making the second part:
 			biasX -= 2*offsetX;
@@ -214,13 +216,13 @@ public class FractalCaveGenerator implements CaveGenerator {
 			endRadius = (startRadius - MIN_RADIUS)*rand.nextFloat() + MIN_RADIUS;
 		}
 		// Divide it into smaller segments and slightly randomize them:
-		double midwx = startwx*weight + endwx*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasX*weight*(1 - weight);
-		double midwy = startwy*weight + endwy*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasY*weight*(1 - weight);
-		double midwz = startwz*weight + endwz*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasZ*weight*(1 - weight);
+		double midwx = parameterObject.startwx*weight + parameterObject.endwx*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasX*weight*(1 - weight);
+		double midwy = parameterObject.startwy*weight + parameterObject.endwy*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasY*weight*(1 - weight);
+		double midwz = parameterObject.startwz*weight + parameterObject.endwz*(1 - weight) + maxFractalShift*(2*rand.nextFloat() - 1) + biasZ*weight*(1 - weight);
 		double midRadius = (startRadius + endRadius)/2 + maxFractalShift*(2*rand.nextFloat() - 2)*HEIGHT_VARIANCE;
 		midRadius = Math.max(midRadius, MIN_RADIUS);
-		generateBranchingCaveBetween(rand.nextLong(), map, startwx, startwy, startwz, midwx, midwy, midwz, biasX*w1, biasY*w1, biasZ*w1, startRadius, midRadius, centerwx, centerwy, centerwz, branchLength, randomness, isStart, false);
-		generateBranchingCaveBetween(rand.nextLong(), map, midwx, midwy, midwz, endwx, endwy, endwz, biasX*w2, biasY*w2, biasZ*w2, midRadius, endRadius, centerwx, centerwy, centerwz, branchLength, randomness, false, isEnd);
+		generateBranchingCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, parameterObject.startwx, parameterObject.startwy, parameterObject.startwz, midwx, midwy, midwz), biasX*w1, biasY*w1, biasZ*w1, startRadius, midRadius, centerwx, centerwy, centerwz, branchLength, randomness, isStart, false);
+		generateBranchingCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), parameterObject.map, midwx, midwy, midwz, parameterObject.endwx, parameterObject.endwy, parameterObject.endwz), biasX*w2, biasY*w2, biasZ*w2, midRadius, endRadius, centerwx, centerwy, centerwz, branchLength, randomness, false, isEnd);
 	}
 
 	private void considerCoordinates(int x, int y, int z, CaveMapFragment map, Random3D rand) {
@@ -244,7 +246,7 @@ public class FractalCaveGenerator implements CaveGenerator {
 			double startRadius = rand.nextFloat()*MAX_INITIAL_RADIUS + 2*MIN_RADIUS;
 			double endRadius = rand.nextFloat()*MAX_INITIAL_RADIUS + 2*MIN_RADIUS;
 			double caveLength = Vector3d.distance(startwx, startwy, startwz, endwx, endwy, endwz);
-			generateBranchingCaveBetween(rand.nextLong(), map, startwx, startwy, startwz, endwx, endwy, endwz, caveLength*(rand.nextDouble() - 0.5), caveLength*(rand.nextDouble() - 0.5)/2, caveLength*(rand.nextDouble() - 0.5), startRadius, endRadius, x << CHUNK_SHIFT, y << CHUNK_SHIFT, z << CHUNK_SHIFT, BRANCH_LENGTH, 0.1f, true, true);
+			generateBranchingCaveBetween(new GenerateCaveBetweenParameter1(rand.nextLong(), map, startwx, startwy, startwz, endwx, endwy, endwz), caveLength*(rand.nextDouble() - 0.5), caveLength*(rand.nextDouble() - 0.5)/2, caveLength*(rand.nextDouble() - 0.5), startRadius, endRadius, x << CHUNK_SHIFT, y << CHUNK_SHIFT, z << CHUNK_SHIFT, BRANCH_LENGTH, 0.1f, true, true);
 		}
 	}
 
